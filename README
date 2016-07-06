@@ -1,0 +1,3 @@
+This repository contains the implementation of decision tree in c.
+The first 10 records are training records and the next five is used for testing.
+The records are in file named input.
