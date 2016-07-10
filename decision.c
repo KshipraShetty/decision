@@ -2,6 +2,7 @@
 #include<stdlib.h>
 #include<string.h>
 #include<math.h>
+static int gName=0;
 int count=10,a[2][2],attr=2;
 struct table
 {
@@ -449,12 +450,52 @@ int test(Table ta,Tree tr)
 		}
 	}
 }
-	
-main()
+int c=4;
+//dotty
+void preorderDotDump (Tree r, FILE* outputFile)
 {
-	int i,flag;
+	if (r->llink!=NULL && r->rlink!=NULL) 
+	{	fprintf (outputFile, "%d [label=%d,color=black];\n",r->root, r->root);
+		if (r->llink != NULL) 
+			if(r->llink->root==-1)
+			{      	fprintf (outputFile, "%d -> %d;\n", r->root,c);
+				fprintf (outputFile, "%d [label=\"no\"];\n",c);
+				c++;
+			}
+			else
+				fprintf (outputFile, "%d -> %d;\n", r->root,  (r->llink)->root);
+		if (r->rlink != NULL)
+			if(r->rlink->root==-1)
+            			{      	fprintf (outputFile, "%d -> %d;\n", r->root,c);
+				fprintf (outputFile, "%d [label=\"no\"];\n",c);c++;	}
+			else if(r->rlink->root==0)
+				{      	fprintf (outputFile, "%d -> %d;\n", r->root,c);
+				fprintf (outputFile, "%d [label=\"yes\"];\n",c);c++;	}
+			else
+				fprintf (outputFile, "%d -> %d;\n", r->root,  (r->rlink)->root);
+		c++;
+        	preorderDotDump (r->llink, outputFile);
+        	preorderDotDump (r->rlink, outputFile);
+    	}
+}
+
+void dotDump(Tree r, FILE *outFile)
+{
+	gName++;
+	fprintf (outFile, "digraph{\ngraph[ordering=\"out\"];\n",gName);
+	
+	preorderDotDump (r, outFile);
+    	fprintf (outFile, "}\n");
+}
+	
+FILE *outputFile;
+
+int main()
+{                                       
+	FILE *pipe;
+	int i,flag,cnt;
 	Tree tr;
-	for (i=0;i<15;i++)
+	for (i=0;i<20;i++)
 	{
 		t[i]=input();
 	}
@@ -463,14 +504,25 @@ main()
 	trr=tr;
 	tr=construct(tr,t);
 	display(tr);
-	for(i=10;i<15;i++)
+	for(i=10;i<20;i++)
 	{
 		flag=0;
 		flag=test(t[i],tr);
 		if(flag==1)
-			printf("Matching\n");
+			{
+			printf("Matching\n");cnt++;}
 		else
 			printf("Not Matching\n");
 	}
-}
-	
+	outputFile = fopen ("bst.dot", "w");		
+	outputFile = fopen ("bst.dot", "a");
+			if (outputFile != NULL) 
+			{
+				dotDump (trr,  outputFile);
+			}
+			fclose (outputFile);	
+	pipe=popen("dot -Tps bst.dot -o bst.ps","w");
+					pclose(pipe);	
+					pipe=popen("evince bst.ps","r"); 
+					pclose(pipe);
+}	
